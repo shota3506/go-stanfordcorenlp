@@ -1,0 +1,27 @@
+FROM ubuntu:18.04
+
+ENV VERSION="4.2.2"
+ENV DEBIAN_FRONTEND="noninteractive"
+
+RUN apt-get update -y && \
+	apt-get install -y apt-utils \
+		default-jre \
+		default-jdk \
+		ant \
+		unzip \
+		wget
+
+RUN	wget http://nlp.stanford.edu/software/stanford-corenlp-${VERSION}.zip; \
+	unzip stanford-corenlp-${VERSION}.zip; \
+	mv stanford-corenlp-${VERSION} CoreNLP; \
+	cd CoreNLP; \
+	export CLASSPATH=""; for file in `find . -name "*.jar"`; do export CLASSPATH="$CLASSPATH:`realpath $file`"; done
+
+ENV PORT 9000
+
+EXPOSE 9000
+
+WORKDIR CoreNLP
+
+CMD java -cp '*' -mx4g edu.stanford.nlp.pipeline.StanfordCoreNLPServer
+
